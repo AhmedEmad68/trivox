@@ -1,0 +1,22 @@
+# ─── Python ──────────────────────────────────────────
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ─── Django ──────────────────────────────────────────
+.env
+db.sqlite3
+db.sqlite3-journal
+*.log
+staticfiles/
+
+# Uploaded user media — uncomment if you do NOT want to commit it.
+# (Currently kept so the seeded location images travel with the repo.)
+# media/
+
+# ─── OS / Editor ─────────────────────────────────────
+.DS_Store
+.idea/
+.vscode/

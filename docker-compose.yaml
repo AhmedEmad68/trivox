@@ -1,0 +1,40 @@
+services:
+  backend:
+    build:
+      context: ./Backend
+      dockerfile: dockerfile
+    container_name: trivox-backend
+    environment:
+      # Build uploaded-media URLs against the host-published port so the
+      # browser can load them directly (see Front/next.config images.unoptimized).
+      - MEDIA_PUBLIC_BASE=http://localhost:8000
+    command: >
+      sh -c "python manage.py makemigrations &&
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    env_file:
+      - ./Backend/.env
+    ports:
+      - "8000:8000"
+    volumes:
+      # Persist the SQLite DB and uploaded media on the host across rebuilds.
+      - ./Backend/db.sqlite3:/app/db.sqlite3
+      - ./Backend/media:/app/media
+
+  frontend:
+    build:
+      context: ./Front
+      dockerfile: dockerfile
+      args:
+        # Baked into the client bundle at build time. The browser (running on
+        # the host) reaches the backend via the published 8000 port.
+        NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+    container_name: trivox-frontend
+    environment:
+      # Used by server-side rendering inside the container to reach the backend
+      # over the compose network (the browser still uses NEXT_PUBLIC_API_URL).
+      - INTERNAL_API_URL=http://backend:8000/api/v1
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
